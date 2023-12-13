@@ -9,14 +9,27 @@
 #include <string>
 
 class Order {
-public:
+private:
     std::string clientOrderID;
     std::string instrument;
-    int side{};
-    double price{};
-    int quantity{};
+    int side;
+    double price;
+    int quantity;
+
+public:
 
     Order(std::string  clientOrderID, std::string  instrument, int side, double price, int quantity);
+
+    //Getters
+
+    std::string getClientOrderID() const;
+    std::string getInstrument() const;
+    int getSide() const;
+    double getPrice() const;
+    int getQuantity() const;
+
+    // Validating the input orders
+    bool validateOrder() const;
 
 };
 

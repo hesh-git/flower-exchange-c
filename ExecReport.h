@@ -9,10 +9,10 @@
 #include <string>
 
 class ExecReport {
-public:
-    std::string executionID;
+private:
     std::string clientOrderID;
-    std::string symbol;
+    std::string orderID;
+    std::string instrument;
     int quantity{};
     double price{};
     int side{};
@@ -20,9 +20,23 @@ public:
     std::string reason;
     std::string transactionTime;
 
-    ExecReport(std::string  executionID, std::string  clientOrderID, std::string  symbol,
+public:
+
+    ExecReport(std::string  orderID, std::string  clientOrderID, std::string  instrument,
                     int quantity, double price, int side, int status, std::string  reason, std::string  transactionTime);
-};
+
+    //Getters
+
+    std::string getClientOrderID() const;
+    std::string getOrderID() const;
+    std::string getInstrument() const;
+    int getQuantity() const;
+    double getPrice() const;
+    int getSide() const;
+    int getStatus() const;
+    std::string getReason() const;
+    std::string getTransactionTime() const;
+
 
 };
 
