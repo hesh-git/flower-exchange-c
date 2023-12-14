@@ -20,13 +20,26 @@ public:
 
     Order(std::string  clientOrderID, std::string  instrument, int side, double price, int quantity);
 
-    //Getters
+    //Getters Setters
+    const std::string &getClientOrderId() const;
 
-    std::string getClientOrderID() const;
-    std::string getInstrument() const;
+    void setClientOrderId(const std::string &clientOrderId);
+
+    const std::string &getInstrument() const;
+
+    void setInstrument(const std::string &instrument);
+
     int getSide() const;
+
+    void setSide(int side);
+
     double getPrice() const;
+
+    void setPrice(double price);
+
     int getQuantity() const;
+
+    void setQuantity(int quantity);
 
     // Validating the input orders
     bool validateOrder() const;

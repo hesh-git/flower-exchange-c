@@ -11,42 +11,78 @@ ExecReport::ExecReport(std::string  orderID, std::string  clientOrderID, std::st
         : orderID(std::move(orderID)), clientOrderID(std::move(clientOrderID)), instrument(std::move(instrument)), quantity(quantity),
           price(price), side(side), status(status), reason(std::move(reason)), transactionTime(std::move(transactionTime)) {}
 
-//Getters
-
-std::string ExecReport::getClientOrderID() const {
+const std::string &ExecReport::getClientOrderId() const {
     return clientOrderID;
 }
 
-std::string ExecReport::getOrderID() const {
+void ExecReport::setClientOrderId(const std::string &clientOrderId) {
+    clientOrderID = clientOrderId;
+}
+
+const std::string &ExecReport::getOrderId() const {
     return orderID;
 }
 
-std::string ExecReport::getInstrument() const {
+void ExecReport::setOrderId(const std::string &orderId) {
+    orderID = orderId;
+}
+
+const std::string &ExecReport::getInstrument() const {
     return instrument;
+}
+
+void ExecReport::setInstrument(const std::string &instrument) {
+    ExecReport::instrument = instrument;
 }
 
 int ExecReport::getQuantity() const {
     return quantity;
 }
 
+void ExecReport::setQuantity(int quantity) {
+    ExecReport::quantity = quantity;
+}
+
 double ExecReport::getPrice() const {
     return price;
+}
+
+void ExecReport::setPrice(double price) {
+    ExecReport::price = price;
 }
 
 int ExecReport::getSide() const {
     return side;
 }
 
+void ExecReport::setSide(int side) {
+    ExecReport::side = side;
+}
+
 int ExecReport::getStatus() const {
     return status;
 }
 
-std::string ExecReport::getReason() const {
+void ExecReport::setStatus(int status) {
+    ExecReport::status = status;
+}
+
+const std::string &ExecReport::getReason() const {
     return reason;
 }
 
-std::string ExecReport::getTransactionTime() const {
+void ExecReport::setReason(const std::string &reason) {
+    ExecReport::reason = reason;
+}
+
+const std::string &ExecReport::getTransactionTime() const {
     return transactionTime;
 }
+
+void ExecReport::setTransactionTime(const std::string &transactionTime) {
+    ExecReport::transactionTime = transactionTime;
+}
+
+
 
 

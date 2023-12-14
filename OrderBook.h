@@ -19,7 +19,8 @@ public:
     void readOrders(const std::string& filename);
     void processOrders();
     void writeExecutionReport(const std::string& filename);
-
+    void processSellOrders(const Order &order);
+    void processBuyOrders(const Order &order);
 };
 
 
