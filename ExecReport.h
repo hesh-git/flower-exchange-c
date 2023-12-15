@@ -7,36 +7,18 @@
 
 
 #include <string>
+#include <vector>
+#include "Order.h"
+using namespace std;
 
 class ExecReport {
 private:
-    std::string clientOrderID;
-    std::string orderID;
-    std::string instrument;
-    int quantity{};
-    double price{};
-    int side{};
-    int status{};
-    std::string reason;
-    std::string transactionTime;
+    vector<Order> executionReport;
 
 public:
+    void setExecutionReport(vector<Order> &executionReport);
 
-    ExecReport(std::string  orderID, std::string  clientOrderID, std::string  instrument,
-                    int quantity, double price, int side, int status, std::string  reason, std::string  transactionTime);
-
-    //Getters
-
-    std::string getClientOrderID() const;
-    std::string getOrderID() const;
-    std::string getInstrument() const;
-    int getQuantity() const;
-    double getPrice() const;
-    int getSide() const;
-    int getStatus() const;
-    std::string getReason() const;
-    std::string getTransactionTime() const;
-
+    vector<Order> &getExecutionReport();
 
 };
 
