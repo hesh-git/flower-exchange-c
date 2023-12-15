@@ -121,11 +121,41 @@ void Order::setQuantityStr(const string &quantityStr) {
 }
 
 
+// Validating the input orders
+bool Order::validateOrder() const {
 
+    //check it contain required fields
+    if (clientOrderID.empty() || instrument.empty()) {
+        return false;
+    }
 
+    //check for invalid instrument
+    if (!(instrument == "Rose" || instrument == "Lavender" || instrument == "Lotus" || instrument == "Tulip" || instrument == "Orchid")) {
+        return false;
+    }
 
+    //check for invalid side
+    if (!(side == 1 || side == 2)) {
+        return false;
+    }
 
+    //check prize is greater than 0
+    if (price <= 0.0) {
+        return false;
+    }
 
+    //is quantity multiple of 10
+    if (quantity % 10 != 0) {
+        return false;
+    }
 
+    // Check if quantity is within the range [10, 1000]
+    if (quantity < 10 || quantity > 1000) {
+        return false;
+    }
 
+    //check if clientOrderID is unique
+
+    return true;
+}
 
