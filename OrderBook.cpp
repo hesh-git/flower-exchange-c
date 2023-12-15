@@ -6,111 +6,190 @@
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 #include "OrderBook.h"
+using namespace std;
 
-void OrderBook::readOrders(const std::string& filename) {
-    std::ifstream file(filename);
-    std::string line;
+OrderBook::OrderBook(std::string &type) {
+    this->type = type;
+}
 
-    // Skip the header line
-    std::getline(file, line);
+void OrderBook::processOrder(Order order, ExecReport &executionReport) {
+    int side = order.getSide();
 
-    while (std::getline(file, line)) {
-        std::istringstream iss(line);
-        std::string clientOrderID, instrument, sideStr;
-        int side, quantity;
-        double price;
-
-        if (!(iss >> clientOrderID >> instrument >> sideStr >> price >> quantity)) {
-            // Handle error while reading the line
-            continue;
-        }
-
-        // Convert side from string to integer
-        if (sideStr == "1") {
-            side = 1;  // Buy
-        } else if (sideStr == "2") {
-            side = 2;  // Sell
-        } else {
-            // Handle invalid side value
-            continue;
-        }
-
-        Order order(clientOrderID, instrument, side, price, quantity);
-        orders.push_back(order);
+    if (side == 1) {
+        processBuyOrder(order, executionReport);
+        sortBuyOrdersDescending(buyOrders);
+    } else {
+        processSellOrder(order, executionReport);
+        sortSellOrdersAscending(sellOrders);
     }
 }
 
-void OrderBook::processOrders() {
-    for (const auto& order : orders) {
+void OrderBook::processBuyOrder(Order &order, ExecReport &executionReport) {
+    if (sellOrders.empty()) {
+        addNewBuyOrder(order, executionReport);
+    } else {
+        processBuyOrderWithSellOrders(order, executionReport);
+    }
+}
 
-        // Process orders
-        if (order.getSide() == 1) {
-            // Buy order
-            std::cout << "Processing buy order - Client Order ID: " << order.getClientOrderId()
-                      << ", Instrument: " << order.getInstrument()
-                      << ", Quantity: " << order.getQuantity()
-                      << ", Price: " << order.getPrice()
-                      << std::endl;
-        } else if (order.getSide() == 2) {
-            // Sell order
-            std::cout << "Processing sell order - Client Order ID: " << order.getClientOrderId()
-                      << ", Instrument: " << order.getInstrument()
-                      << ", Quantity: " << order.getQuantity()
-                      << ", Price: " << order.getPrice()
-                      << std::endl;
+void OrderBook::processSellOrder(Order &order, ExecReport &executionReport) {
+    if (buyOrders.empty()) {
+        addNewSellOrder(order, executionReport);
+    } else {
+        processSellOrderWithBuyOrders(order, executionReport);
+    }
+}
+
+void OrderBook::addNewBuyOrder(Order &order, ExecReport &executionReport) {
+    order.setExecStatus("New");
+    buyOrders.push_back(order);
+    order.setTransactionTime(getTimeStamp());
+    executionReport.getExecutionReport().push_back(order);
+}
+
+void OrderBook::addNewSellOrder(Order &order, ExecReport &execReport) {
+    order.setExecStatus("New");
+    sellOrders.push_back(order);
+    order.setTransactionTime(getTimeStamp());
+    execReport.getExecutionReport().push_back(order);
+}
+
+void OrderBook::processBuyOrderWithSellOrders(Order &order, ExecReport &executionReport) {
+    for (size_t i = 0; i < sellOrders.size(); i++) {
+        int buyPrice = order.getPrice();
+        int sellPrice = sellOrders[0].getPrice();
+
+        if (buyPrice < sellPrice) {// If the buy price is less than the sell price, add the order to buy side
+            if(i > 0){// If the order is not new
+                buyOrders.push_back(order);
+                break;
+            }
+            addNewBuyOrder(order, executionReport);
+            break;
+        }else{ // If the buy price is higher than or equal to sell price, need to execute accordingly
+            int sellQuantity = sellOrders[0].getQuantity();
+            int buyQuantity = order.getQuantity();
+            int difference = buyQuantity - sellQuantity;
+
+            if (difference == 0) { // Both orders are fully filled
+                fullyFillBuyOrder(order, sellPrice, executionReport);
+                sellOrders.erase(sellOrders.begin());
+                break;
+            } else if (difference < 0) { // Sell order is partially filled
+                partiallyFillSellOrder(order, sellPrice, executionReport);
+                order.setPrice(buyPrice);
+                sellOrders[0].setQuantity(sellQuantity - buyQuantity);
+                break;
+            } else { // Buy order is partially filled
+                partiallyFillBuyOrder(order, sellPrice, executionReport);
+                order.setPrice(buyPrice);
+                sellOrders.erase(sellOrders.begin());
+                order.setQuantity(difference);
+            }
         }
-
-        // Perform processing and generate execution report
-        ExecReport report{
-                "ExecID123", // Replace with your logic to generate ExecutionID
-                order.getClientOrderId(),
-                order.getInstrument(),
-                order.getQuantity(),
-                order.getPrice(),
-                order.getSide(),
-                2, // Assuming the order is filled
-                "", // No reason for success
-                "20231210-120000.000" // Replace with your logic to generate transaction time
-        };
-
-        executionReports.push_back(report);
+    }
+    // If the order is not fully filled, add it to buy side
+    if (order.getExecStatus() == "PFill") {
+        buyOrders.push_back(order);
     }
 }
 
-void OrderBook::writeExecutionReport(const std::string& filename) {
-    std::ofstream file(filename);
+void OrderBook::processSellOrderWithBuyOrders(Order &order, ExecReport &execReport) {
+    for (size_t i = 0; i < buyOrders.size(); i++) {
+        int sellPrice = order.getPrice();
+        int buyPrice = buyOrders[0].getPrice();
 
-    file << "Name,Type,Possible Values,Mandatory,Notes\n";
-    file << "Client Order ID,String,,Yes,This is the Client Order ID of the submitted order\n";
-    file << "Order ID,String,,Yes,System generated unique order ID\n";
-    file << "Instrument,String,(Rose, Lavender, Lotus, Tulip, Orchid),Yes,We will limit the instruments for these 5 types only\n";
-    file << "Side,Int,1: Buy 2: Sell,Yes,Specifies if the order is a buy order or a sell order\n";
-    file << "Price,Double,Price > 0.0,Yes,Price of one unit\n";
-    file << "Quantity,Int,(10, 20, 30, 1000),Yes,Quantity of the order\n";
-    file << "Status,Int,0-New 1- Rejected 3-Pfill 2-Fill,Yes,The status of the execution report\n";
-    file << "Reason,String,,No,Contains the reject reason, when an order is not accepted into the system due to validation failure\n";
-    file << "Transaction Time,String,YYYYMMDD-HHMMSS.sss,Yes,Every execution report should have the transaction time in the given format. This data can be used to check the speed and optimize your code\n";
+        if (sellPrice < buyPrice) { // If the sell price is less than the buy price, add the order to sell side
+            if(i > 0){ // If the order is not new
+                sellOrders.push_back(order);
+                break;
+            }
+            addNewSellOrder(order, execReport);
+            break;
+        } else { // If the sell price is higher than or equal to buy price, need to execute accordingly
+            int buyQuantity = buyOrders[0].getQuantity();
+            int sellQuantity = order.getQuantity();
+            int difference = sellQuantity - buyQuantity;
 
-    for (const auto& report : executionReports) {
-        file << report.getClientOrderId() << ","
-             << report.getOrderId() << ","
-             << report.getInstrument() << ","
-             << report.getSide() << ","
-             << std::fixed << std::setprecision(2) << report.getPrice() << ","
-             << report.getQuantity() << ","
-             << report.getStatus() << ","
-             << report.getReason() << ","
-             << report.getTransactionTime() << "\n";
+            if (difference == 0) { // Both orders are fully filled
+                fullyFillSellOrder(order, buyPrice, execReport);
+                buyOrders.erase(buyOrders.begin());
+                break;
+            } else if (difference < 0) { // Buy order is partially filled
+                partiallyFillBuyOrder(order, buyPrice, execReport);
+                order.setPrice(sellPrice);
+                buyOrders[0].setQuantity(buyQuantity - sellQuantity);
+                break;
+            } else { // Sell order is partially filled
+                partiallyFillSellOrder(order, buyPrice, execReport);
+                order.setPrice(sellPrice);
+                buyOrders.erase(buyOrders.begin());
+                order.setQuantity(difference);
+            }
+        }
+    }
+    // If the order is not fully filled, add it to sell side
+    if (order.getExecStatus() == "PFill") {
+        sellOrders.push_back(order);
     }
 }
 
-void OrderBook::processSellOrders(const Order &order) {
 
-
+void OrderBook::fullyFillBuyOrder(Order &order, int fillPrice, ExecReport &executionReport) {
+    order.setExecStatus("Fill");
+    order.setPrice(fillPrice);
+    sellOrders[0].setExecStatus("Fill");
+    order.setTransactionTime(getTimeStamp());
+    sellOrders[0].setTransactionTime(getTimeStamp());
+    executionReport.getExecutionReport().push_back(order);
+    executionReport.getExecutionReport().push_back(sellOrders[0]);
 }
 
-void OrderBook::processBuyOrders(const Order &order) {
-
+void OrderBook::partiallyFillSellOrder(Order &order, int fillPrice, ExecReport &executionReport) {
+    sellOrders[0].setExecStatus("PFill");
+    order.setExecStatus("Fill");
+    order.setPrice(fillPrice);
+    sellOrders[0].setQuantity(order.getQuantity());
+    sellOrders[0].setTransactionTime(getTimeStamp());
+    order.setTransactionTime(getTimeStamp());
+    executionReport.getExecutionReport().push_back(order);
+    executionReport.getExecutionReport().push_back(sellOrders[0]);
 }
+
+void OrderBook::partiallyFillBuyOrder(Order &order, int fillPrice, ExecReport &executionReport) {
+    sellOrders[0].setExecStatus("Fill");
+    order.setExecStatus("PFill");
+    order.setPrice(fillPrice);
+    order.setQuantity(sellOrders[0].getQuantity());
+    order.setTransactionTime(getTimeStamp());
+    sellOrders[0].setTransactionTime(getTimeStamp());
+    executionReport.getExecutionReport().push_back(order);
+    executionReport.getExecutionReport().push_back(sellOrders[0]);
+}
+
+void OrderBook::sortSellOrdersAscending(std::vector<Order> &orders) {
+    std::sort(orders.begin(), orders.end(), [](const Order &a, const Order &b) {
+        return a.getPrice() < b.getPrice();
+    });
+}
+
+void OrderBook::sortBuyOrdersDescending(std::vector<Order> &orders) {
+    std::sort(orders.begin(), orders.end(), [](const Order &a, const Order &b) {
+        return a.getPrice() > b.getPrice();
+    });
+}
+
+string OrderBook::getTimeStamp() {
+    // Get the current time and format it as needed
+    time_t now = time(0);
+    tm *ltm = localtime(&now);
+    string formattedTime = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
+    return formattedTime;
+}
+
+
+
+
 
