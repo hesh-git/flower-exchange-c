@@ -13,12 +13,12 @@ using namespace std;
 
 class ExecReport {
 private:
-    vector<Order> executionReport;
+    vector<Order> execReport;
 
 public:
-    void setExecutionReport(vector<Order> &executionReport);
+    void setExecReport(vector<Order> &execReport);
 
-    vector<Order> &getExecutionReport();
+    vector<Order> &getExecReport();
 
 };
 

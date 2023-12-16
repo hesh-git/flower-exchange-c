@@ -67,6 +67,9 @@ public:
 
     const string &getQuantityStr() const;
     void setQuantityStr(const string &quantityStr);
+
+
+    void validateOrder();
 };
 
 

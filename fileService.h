@@ -10,10 +10,10 @@
 class FileService {
 public:
     // Method to read orders from orders.csv
-    static std::vector<std::map<std::string, std::string>> readOrdersFromFile(const std::string& filename);
+    static vector<Order> readAndProcessOrders(const string &filename);
 
     // Method to write execution reports to execution_report.csv
-    static void writeExecutionReportsToFile(const std::vector<ExecReport>& reports, const std::string& filename);
+    static void writeExecutionReportToFile(const string &fileName, const vector<Order> &orders);
 };
 
 #endif

@@ -9,11 +9,11 @@ using namespace std;
 Order::Order() = default;
 
 Order::Order(string &clientOrderId, string &instrument, int side, double price, int quantity) {
-    clientOrderId = clientOrderId;
-    instrument = instrument;
-    side = side;
-    price = price;
-    quantity = quantity;
+    this->clientOrderId = clientOrderId;
+    this->instrument = instrument;
+    this->side = side;
+    this->price = price;
+    this->quantity = quantity;
 }
 
 const string &Order::getClientOrderId() const {
@@ -122,40 +122,52 @@ void Order::setQuantityStr(const string &quantityStr) {
 
 
 // Validating the input orders
-bool Order::validateOrder() const {
+void Order::validateOrder(){
 
     //check it contain required fields
-    if (clientOrderID.empty() || instrument.empty()) {
-        return false;
+    if (clientOrderId.empty()) {
+        setStatus("Rejected");
+        setReason("Incorrect clientOrderId");
+    }
+
+    else if (instrument.empty()) {
+        setStatus("Rejected");
+        setReason("Instrument is missing");
     }
 
     //check for invalid instrument
-    if (!(instrument == "Rose" || instrument == "Lavender" || instrument == "Lotus" || instrument == "Tulip" || instrument == "Orchid")) {
-        return false;
+    else if(!(instrument == "Rose" || instrument == "Lavender" || instrument == "Lotus" || instrument == "Tulip" || instrument == "Orchid")) {
+        setStatus("Rejected");
+        setReason("Invalid instrument");
     }
 
     //check for invalid side
-    if (!(side == 1 || side == 2)) {
-        return false;
+    else if (!(side == 1 || side == 2)) {
+        setStatus("Rejected");
+        setReason("Invalid side");
     }
 
     //check prize is greater than 0
-    if (price <= 0.0) {
-        return false;
+    else if (price <= 0.0) {
+        setStatus("Rejected");
+        setReason("Invalid price");
     }
 
     //is quantity multiple of 10
-    if (quantity % 10 != 0) {
-        return false;
+    else if (quantity % 10 != 0) {
+        setStatus("Rejected");
+        setReason("Invalid quantity");
     }
 
     // Check if quantity is within the range [10, 1000]
-    if (quantity < 10 || quantity > 1000) {
-        return false;
+    else if (quantity < 10 || quantity > 1000) {
+        setStatus("Rejected");
+        setReason("Invalid quantity");
     }
 
-    //check if clientOrderID is unique
-
-    return true;
+    else {
+        setStatus("Accepted");
+        setReason("");
+    }
 }
 
