@@ -5,10 +5,10 @@
 #include "ExecReport.h"
 
 
-void ExecReport::setExecutionReport(vector<Order> &executionReport) {
-
+void ExecReport::setExecReport(vector<Order> &execReport) {
+    ExecReport::execReport = execReport;
 }
 
-vector<Order> &ExecReport::getExecutionReport() {
-    return executionReport;
+vector<Order> &ExecReport::getExecReport() {
+    return execReport;
 }
