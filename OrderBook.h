@@ -34,7 +34,7 @@ public:
     void partiallyFillSellOrderSellSide(Order &order, int fillPrice, ExecReport &execReport);
     static void sortBuyOrdersDescending(std::vector<Order> &orders);
     static void sortSellOrdersAscending(std::vector<Order> &orders);
-    string getTimeStamp();
+    static string getTimeStamp();
 };
 
 

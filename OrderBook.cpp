@@ -18,54 +18,7 @@ void OrderBook::processOrder(Order order, ExecReport &executionReport) {
     if (side == 1) { // Buy order
         processBuyOrder(order, executionReport);
     } else { // Sell order
-        //processSellOrder(order, executionReport);
-        if (buyOrders.empty()) {    // If there are no buy orders, add the order directly to sell side as a new order
-            order.setExecStatus("New");
-            sellOrders.push_back(order);
-            order.setTransactionTime(getTimeStamp());
-            executionReport.getExecReport().push_back(order);
-        } else {
-            int buyOrderSize = buyOrders.size();
-            for (size_t i = 0; i < buyOrderSize; i++) {
-                int sellPrice = order.getPrice();
-                int buyPrice = buyOrders[0].getPrice();
-                if (sellPrice > buyPrice) { // If the sell price is greater than the buy price, add the order to sell side
-                    if (i > 0) {    // If the order is not a new one
-                        sellOrders.push_back(order);
-                        break;
-                    }
-                    // If the order is a new one
-                    addNewSellOrder(order, executionReport);
-                    break;
-                } else {
-                    int buyQuantity = buyOrders[0].getQuantity();
-                    int sellQuantity = order.getQuantity();
-                    int difference = sellQuantity - buyQuantity;
-                    if (difference == 0) { // Both orders are fully filled
-                        fullyFillSellOrder(order, buyPrice, executionReport);
-                        order.setPrice(sellPrice);
-                        buyOrders.erase(buyOrders.begin());
-                        break;
-                    } else if (difference < 0) {    // The buy order is partially filled
-                        partiallyFillBuyOrderSellSide(order, buyPrice, executionReport);
-                        order.setPrice(sellPrice);
-                        buyOrders[0].setQuantity(buyQuantity - sellQuantity);
-                        break;
-                    } else {    // The sell order is partially filled
-                        partiallyFillSellOrderSellSide(order, buyPrice, executionReport);
-                        order.setPrice(sellPrice);
-                        buyOrders.erase(buyOrders.begin());
-                        order.setQuantity(difference);
-                    }
-                }
-            }
-
-            // After iterating through all the buy orders, if the order is still partially filled, add it to sell side
-            if (order.getExecStatus() == "PFill") {
-                sellOrders.push_back(order);
-            }
-        }
-        sortSellOrdersAscending(sellOrders);
+        processSellOrder(order, executionReport);
     }
 }
 
@@ -79,14 +32,14 @@ void OrderBook::processBuyOrder(Order &order, ExecReport &executionReport) {
     sortBuyOrdersDescending(buyOrders);
 }
 
-//void OrderBook::processSellOrder(Order &order, ExecReport &executionReport) {
-//    if (buyOrders.empty()) {
-//        addNewSellOrder(order, executionReport);
-//    } else {
-//        processSellOrderWithBuyOrders(order, executionReport);
-//    }
-//    sortSellOrdersAscending(sellOrders);
-//}
+void OrderBook::processSellOrder(Order &order, ExecReport &executionReport) {
+    if (buyOrders.empty()) {
+        addNewSellOrder(order, executionReport);
+    } else {
+        processSellOrderWithBuyOrders(order, executionReport);
+    }
+    sortSellOrdersAscending(sellOrders);
+}
 
 void OrderBook::addNewBuyOrder(Order &order, ExecReport &executionReport) {
     order.setExecStatus("New");
@@ -103,7 +56,8 @@ void OrderBook::addNewSellOrder(Order &order, ExecReport &execReport) {
 }
 
 void OrderBook::processBuyOrderWithSellOrders(Order &order, ExecReport &executionReport) {
-    for (size_t i = 0; i < sellOrders.size(); i++) {
+    int sellOrderSize = sellOrders.size();
+    for (size_t i = 0; i < sellOrderSize; i++) {
         int buyPrice = order.getPrice();
         int sellPrice = sellOrders[0].getPrice();
 
@@ -143,46 +97,47 @@ void OrderBook::processBuyOrderWithSellOrders(Order &order, ExecReport &executio
     }
 }
 
-//void OrderBook::processSellOrderWithBuyOrders(Order &order, ExecReport &execReport) {
-//    for (size_t i = 0; i < buyOrders.size(); i++) {
-//        int sellPrice = order.getPrice();
-//        int buyPrice = buyOrders[0].getPrice();
-//
-//        if (sellPrice > buyPrice) { // If the sell price is greater than the buy price, add the order to sell side
-//            if(i > 0){ // If the order is not new
-//                sellOrders.push_back(order);
-//                break;
-//            }
-//            addNewSellOrder(order, execReport);
-//            break;
-//        } else { // If the sell price is higher than or equal to buy price, need to execute accordingly
-//            int buyQuantity = buyOrders[0].getQuantity();
-//            int sellQuantity = order.getQuantity();
-//            int difference = sellQuantity - buyQuantity;
-//
-//            if (difference == 0) { // Both orders are fully filled
-//                fullyFillSellOrder(order, buyPrice, execReport);
-//                order.setPrice(sellPrice);
-//                buyOrders.erase(buyOrders.begin());
-//                break;
-//            } else if (difference < 0) { // Buy order is partially filled
-//                partiallyFillBuyOrderSellSide(order, buyPrice, execReport);
-//                order.setPrice(sellPrice);
-//                buyOrders[0].setQuantity(buyQuantity - sellQuantity);
-//                break;
-//            } else { // Sell order is partially filled
-//                partiallyFillSellOrderSellSide(order, buyPrice, execReport);
-//                order.setPrice(sellPrice);
-//                buyOrders.erase(buyOrders.begin());
-//                order.setQuantity(difference);
-//            }
-//        }
-//    }
-//    // If the order is not fully filled, add it to sell side
-//    if (order.getExecStatus() == "PFill") {
-//        sellOrders.push_back(order);
-//    }
-//}
+void OrderBook::processSellOrderWithBuyOrders(Order &order, ExecReport &execReport) {
+    int buyOrderSize = buyOrders.size();
+    for (size_t i = 0; i < buyOrderSize; i++) {
+        int sellPrice = order.getPrice();
+        int buyPrice = buyOrders[0].getPrice();
+        if (sellPrice > buyPrice) { // If the sell price is greater than the buy price, add the order to sell side
+            if (i > 0) {    // If the order is not a new one
+                sellOrders.push_back(order);
+                break;
+            }
+            // If the order is a new one
+            addNewSellOrder(order, execReport);
+            break;
+        } else {
+            int buyQuantity = buyOrders[0].getQuantity();
+            int sellQuantity = order.getQuantity();
+            int difference = sellQuantity - buyQuantity;
+            if (difference == 0) { // Both orders are fully filled
+                fullyFillSellOrder(order, buyPrice, execReport);
+                order.setPrice(sellPrice);
+                buyOrders.erase(buyOrders.begin());
+                break;
+            } else if (difference < 0) {    // The buy order is partially filled
+                partiallyFillBuyOrderSellSide(order, buyPrice, execReport);
+                order.setPrice(sellPrice);
+                buyOrders[0].setQuantity(buyQuantity - sellQuantity);
+                break;
+            } else {    // The sell order is partially filled
+                partiallyFillSellOrderSellSide(order, buyPrice, execReport);
+                order.setPrice(sellPrice);
+                buyOrders.erase(buyOrders.begin());
+                order.setQuantity(difference);
+            }
+        }
+    }
+
+    // After iterating through all the buy orders, if the order is still partially filled, add it to sell side
+    if (order.getExecStatus() == "PFill") {
+        sellOrders.push_back(order);
+    }
+}
 
 
 void OrderBook::fullyFillBuyOrder(Order &order, int fillPrice, ExecReport &executionReport) {

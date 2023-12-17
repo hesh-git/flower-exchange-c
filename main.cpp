@@ -8,13 +8,31 @@
 #include "ExecReport.h"
 #include "OrderBook.h"
 
-int main() {
-    string ordersFile = R"(..\OrdersFiles\example_6.csv)";
-    string execReportFile = R"(..\ExecReportFiles\example_6.csv)";
+void printExecutionList(ExecReport execReport) {
+    cout << "Execution list size: " << execReport.getExecReport().size() << "\n" << endl;
+    cout << "----------------- Execution List -----------------------" << endl;
+    for (size_t i = 0; i < execReport.getExecReport().size(); i++) {
+        const auto& order = execReport.getExecReport()[i];
+        cout << order.getOrderId() << " " << order.getClientOrderId() << " "
+             << order.getInstrument() << " " << order.getSide() << " "
+             << order.getExecStatus() << " " << order.getQuantity() << " "
+             << order.getPrice() << " " << order.getReason() << " "
+             << order.getTransactionTime() << endl;
+    }
+    cout << "--------------------------------------------------------\n" << endl;
+}
 
+int main() {
+    cout << "===================Exchange App Started!===================\n" << endl;
+    cout << "Reading Orders.csv file..." << endl;
+
+    string ordersFile = R"(..\OrdersFiles\example_7.csv)";
+    string execReportFile = R"(..\ExecReportFiles\example_7.csv)";
+
+    cout << "Creating Orders Vector" << endl;
     vector<Order> ordersVector =  FileService::readAndProcessOrders(ordersFile);
 
-    // Validate each order in orders vector using validate method in Order class
+    cout << "Validating orders" << endl;
     for (Order &order : ordersVector) {
         order.validateOrder();
     }
@@ -28,7 +46,7 @@ int main() {
     OrderBook tulipOrderBook((string &) "Tulip");
     OrderBook orchidOrderBook((string &) "Orchid");
 
-    // Execute each order
+    cout << "Processing orders\n" << endl;
     for (size_t i = 0; i < ordersVector.size(); i++) {
         std::string strNumber = std::to_string(i+1);    // Generate a unique order ID for each order
         ordersVector[i].setOrderId("ord" + strNumber);
@@ -51,12 +69,7 @@ int main() {
         }
     }
 
-    cout << "Execution list size: " << execReport.getExecReport().size() << "\n" << endl;
-    cout << "----------------- Execution List -----------------------" << endl;
-    for (size_t i = 0; i < execReport.getExecReport().size(); i++) {
-        cout << execReport.getExecReport()[i].getOrderId() << " "<< execReport.getExecReport()[i].getClientOrderId() << " " << execReport.getExecReport()[i].getInstrument() << " " << execReport.getExecReport()[i].getSide() << " " << execReport.getExecReport()[i].getExecStatus() << " " << execReport.getExecReport()[i].getQuantity() << " " << execReport.getExecReport()[i].getPrice() << " " << execReport.getExecReport()[i].getReason() << " " << execReport.getExecReport()[i].getTransactionTime() << endl;
-    }
-    cout << "--------------------------------------------------------\n" << endl;
+    printExecutionList(execReport);
 
     // Write CSV file
     cout << "Writing CSV file..." << endl;
