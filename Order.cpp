@@ -96,28 +96,28 @@ void Order::setOrderId(const string &orderId) {
     Order::orderId = orderId;
 }
 
-const string &Order::getSideWithRejState() const {
-    return sideWithRejState;
+const string &Order::getSideStr() const {
+    return sideStr;
 }
 
-void Order::setSideWithRejState(const std::string &SideWithRejState) {
-    Order::sideWithRejState = sideWithRejState;
+void Order::setSideStr(const string &sideStr) {
+    Order::sideStr = sideStr;
 }
 
-const string &Order::getPriceWithRejState() const {
-    return priceWithRejState;
+const string &Order::getPriceStr() const {
+    return priceStr;
 }
 
-void Order::setPriceWithRejState(const string &priceWithRejState) {
-    Order::priceWithRejState = priceWithRejState;
+void Order::setPriceStr(const string &priceStr) {
+    Order::priceStr = priceStr;
 }
 
-const string &Order::getQuantityWithRejState() const {
-    return quantityWithRejState;
+const string &Order::getQuantityStr() const {
+    return quantityStr;
 }
 
-void Order::setQuantityWithRejState(const string &quantityWithRejState) {
-    Order::quantityWithRejState = quantityWithRejState;
+void Order::setQuantityStr(const string &quantityStr) {
+    Order::quantityStr = quantityStr;
 }
 
 
