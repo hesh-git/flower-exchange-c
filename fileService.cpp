@@ -38,21 +38,21 @@ vector<Order> FileService::readAndProcessOrders(const std::string &filename){
             order.setInstrument(instrument);
 
             if (side.empty()){
-                order.setSide(-1);
+                order.setSideWithRejState("");
             }
             else{
                 order.setSide(stoi(side));
             }
 
             if (price.empty()){
-                order.setPrice(-1);
+                order.setPriceWithRejState("");
             }
             else{
                 order.setPrice(stod(price));
             }
 
             if (quantity.empty()){
-                order.setQuantity(-1);
+                order.setQuantityWithRejState("");
             }
             else {
                 order.setQuantity(stoi(quantity));
@@ -83,9 +83,9 @@ void FileService::writeExecutionReportToFile(const string &fileName, const vecto
             << order.getClientOrderId() << ","
             << order.getOrderId() << ","
             << order.getInstrument() << ","
-            << order.getSide() << ","
-            << order.getPrice() << ","
-            << order.getQuantity() << ","
+            << ((order.getExecStatus() == "Rejected") ? order.getSideWithRejState() : to_string(order.getSide())) << ","
+            << ((order.getExecStatus() == "Rejected") ? order.getPriceWithRejState() : to_string(order.getPrice())) << ","
+            << ((order.getExecStatus() == "Rejected") ? order.getQuantityWithRejState() : to_string(order.getQuantity()))
             << order.getExecStatus() << ","
             << order.getReason() << ","
             << order.getTransactionTime() << ","
