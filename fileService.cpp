@@ -22,41 +22,42 @@ vector<Order> FileService::readAndProcessOrders(const std::string &filename){
 
             string clientOrderID;
             string instrument;
-            string side;
-            string price;
-            string quantity;
+            int side = -1;
+            double price = 0.0;
+            int quantity = -1;
+
+            string sideRej;
+            string priceRej;
+            string quantityRej;
 
             // Read data from each line and assign it to the Order object
             getline(ss, clientOrderID, ',');
             getline(ss, instrument, ',');
-            getline(ss, side, ',');
-            getline(ss,quantity, ',');
-            getline(ss, price, ',');
+            getline(ss, sideRej, ',');
+            getline(ss,quantityRej, ',');
+            getline(ss, priceRej, ',');
+
+            if(!sideRej.empty()){
+                side = stoi(sideRej);
+            }
+            if(!priceRej.empty()){
+                price = stod(priceRej);
+            }
+            if(!quantityRej.empty()){
+                quantity = stoi(quantityRej);
+            }
 
             //Set the Order object attributes
             order.setClientOrderId(clientOrderID);
             order.setInstrument(instrument);
+            order.setSide(side);
+            order.setPrice(price);
+            order.setQuantity(quantity);
 
-            if (side.empty()){
-                order.setSide(-1);
-            }
-            else{
-                order.setSide(stoi(side));
-            }
+            order.setSideRej(sideRej);
+            order.setPriceRej(priceRej);
+            order.setQuantityRej(quantityRej);
 
-            if (price.empty()){
-                order.setPrice(-1);
-            }
-            else{
-                order.setPrice(stod(price));
-            }
-
-            if (quantity.empty()){
-                order.setQuantity(-1);
-            }
-            else {
-                order.setQuantity(stoi(quantity));
-            }
 
             // Add the Order object to the vector
             ordersVector.push_back(order);
@@ -65,14 +66,14 @@ vector<Order> FileService::readAndProcessOrders(const std::string &filename){
         // Close the file
         file.close();
 
-        // Return the vector
-        return ordersVector;
     }
+    // Return the vector
+    return ordersVector;
 }
 
 void FileService::writeExecutionReportToFile(const string &fileName, const vector<Order> &orders){
     ofstream file(fileName);
-    cout << "Writing to file: " << fileName << endl;
+    cout << "6. Writing to file: " << fileName << endl;
     if (file.is_open()){
         // Write header
         file << "ClientOrderId, OrderID, Instrument, Side, Price, Quantity, ExecStatus, Reason, TransactionTime" << endl;
@@ -83,9 +84,9 @@ void FileService::writeExecutionReportToFile(const string &fileName, const vecto
             << order.getClientOrderId() << ","
             << order.getOrderId() << ","
             << order.getInstrument() << ","
-            << order.getSide() << ","
-            << order.getPrice() << ","
-            << order.getQuantity() << ","
+            << ((order.getExecStatus() == "Reject") ? order.getSideRej() : to_string(order.getSide())) << ","
+            << ((order.getExecStatus() == "Reject") ? order.getPriceRej() : to_string(order.getPrice())) << ","
+            << ((order.getExecStatus() == "Reject") ? order.getQuantityRej() : to_string(order.getQuantity())) << ","
             << order.getExecStatus() << ","
             << order.getReason() << ","
             << order.getTransactionTime() << ","

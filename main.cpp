@@ -8,31 +8,18 @@
 #include "ExecReport.h"
 #include "OrderBook.h"
 
-void printExecutionList(ExecReport execReport) {
-    cout << "Execution list size: " << execReport.getExecReport().size() << "\n" << endl;
-    cout << "----------------- Execution List -----------------------" << endl;
-    for (size_t i = 0; i < execReport.getExecReport().size(); i++) {
-        const auto& order = execReport.getExecReport()[i];
-        cout << order.getOrderId() << " " << order.getClientOrderId() << " "
-             << order.getInstrument() << " " << order.getSide() << " "
-             << order.getExecStatus() << " " << order.getQuantity() << " "
-             << order.getPrice() << " " << order.getReason() << " "
-             << order.getTransactionTime() << endl;
-    }
-    cout << "--------------------------------------------------------\n" << endl;
-}
 
 int main() {
-    cout << "===================Exchange App Started!===================\n" << endl;
-    cout << "Reading Orders.csv file..." << endl;
+    cout << "*********************** START **************************\n" << endl;
+    cout << "1. Reading orders.csv file...\n" << endl;
 
-    string ordersFile = R"(..\OrdersFiles\example_7.csv)";
-    string execReportFile = R"(..\ExecReportFiles\example_7.csv)";
+    string ordersFile = R"(..\OrdersFiles\example_8.csv)";
+    string execReportFile = R"(..\ExecReportFiles\example_8.csv)";
 
-    cout << "Creating Orders Vector" << endl;
+    cout << "2. Creating Orders Vector\n" << endl;
     vector<Order> ordersVector =  FileService::readAndProcessOrders(ordersFile);
 
-    cout << "Validating orders" << endl;
+    cout << "3. Validating orders\n" << endl;
     for (Order &order : ordersVector) {
         order.validateOrder();
     }
@@ -46,7 +33,7 @@ int main() {
     OrderBook tulipOrderBook((string &) "Tulip");
     OrderBook orchidOrderBook((string &) "Orchid");
 
-    cout << "Processing orders\n" << endl;
+    cout << "4. Matching orders\n" << endl;
     for (size_t i = 0; i < ordersVector.size(); i++) {
         std::string strNumber = std::to_string(i+1);    // Generate a unique order ID for each order
         ordersVector[i].setOrderId("ord" + strNumber);
@@ -69,14 +56,11 @@ int main() {
         }
     }
 
-    printExecutionList(execReport);
-
-    // Write CSV file
-    cout << "Writing CSV file..." << endl;
+    cout << "5. Writing Execution Report Details into CSV file...\n" << endl;
     FileService::writeExecutionReportToFile(execReportFile, execReport.getExecReport());
-    cout << "CSV file written successfully!\n" << endl;
+    cout << "Final execution reports can be inspected in ExecReportFiles folder in the project directory!\n" << endl;
 
-    cout << "============Exchange App Ended!============\n" << endl;
+    cout << "*********************** END **************************" << endl;
 
     return 0;
 

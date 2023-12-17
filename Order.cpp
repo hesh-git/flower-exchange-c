@@ -96,28 +96,28 @@ void Order::setOrderId(const string &orderId) {
     Order::orderId = orderId;
 }
 
-const string &Order::getSideStr() const {
-    return sideStr;
+const string &Order::getSideRej() const {
+    return sideRej;
 }
 
-void Order::setSideStr(const string &sideStr) {
-    Order::sideStr = sideStr;
+void Order::setSideRej(const string &sideRej) {
+    Order::sideRej = sideRej;
 }
 
-const string &Order::getPriceStr() const {
-    return priceStr;
+const string &Order::getPriceRej() const {
+    return priceRej;
 }
 
-void Order::setPriceStr(const string &priceStr) {
-    Order::priceStr = priceStr;
+void Order::setPriceRej(const string &priceRej) {
+    Order::priceRej = priceRej;
 }
 
-const string &Order::getQuantityStr() const {
-    return quantityStr;
+const string &Order::getQuantityRej() const {
+    return quantityRej;
 }
 
-void Order::setQuantityStr(const string &quantityStr) {
-    Order::quantityStr = quantityStr;
+void Order::setQuantityRej(const string &quantityRej) {
+    Order::quantityRej = quantityRej;
 }
 
 
@@ -126,42 +126,42 @@ void Order::validateOrder(){
 
     //check it contain required fields
     if (clientOrderId.empty()) {
-        setStatus("Rejected");
+        setStatus("Reject");
         setReason("Incorrect clientOrderId");
     }
 
     else if (instrument.empty()) {
-        setStatus("Rejected");
+        setStatus("Reject");
         setReason("Instrument is missing");
     }
 
     //check for invalid instrument
     else if(!(instrument == "Rose" || instrument == "Lavender" || instrument == "Lotus" || instrument == "Tulip" || instrument == "Orchid")) {
-        setStatus("Rejected");
+        setStatus("Reject");
         setReason("Invalid instrument");
     }
 
     //check for invalid side
     else if (!(side == 1 || side == 2)) {
-        setStatus("Rejected");
+        setStatus("Reject");
         setReason("Invalid side");
     }
 
     //check prize is greater than 0
     else if (price <= 0.0) {
-        setStatus("Rejected");
+        setStatus("Reject");
         setReason("Invalid price");
     }
 
     //is quantity multiple of 10
     else if (quantity % 10 != 0) {
-        setStatus("Rejected");
+        setStatus("Reject");
         setReason("Invalid quantity");
     }
 
     // Check if quantity is within the range [10, 1000]
     else if (quantity < 10 || quantity > 1000) {
-        setStatus("Rejected");
+        setStatus("Reject");
         setReason("Invalid quantity");
     }
 
@@ -170,4 +170,5 @@ void Order::validateOrder(){
         setReason("");
     }
 }
+
 

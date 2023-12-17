@@ -21,9 +21,9 @@ private:
     string execStatus;
     string transactionTime;
     string orderId;
-    string sideStr;
-    string priceStr;
-    string quantityStr;
+    string sideRej;
+    string priceRej;
+    string quantityRej;
 
 public:
     Order();    //    Default constructor
@@ -59,15 +59,14 @@ public:
     const string &getOrderId() const;
     void setOrderId(const string &orderId);
 
-    const string &getSideStr() const;
-    void setSideStr(const string &sideStr);
+    const string &getSideRej() const;
+    void setSideRej(const string &sideRej);
 
-    const string &getPriceStr() const;
-    void setPriceStr(const string &priceStr);
+    const string &getPriceRej() const;
+    void setPriceRej(const string &priceRej);
 
-    const string &getQuantityStr() const;
-    void setQuantityStr(const string &quantityStr);
-
+    const string &getQuantityRej() const;
+    void setQuantityRej(const string &quantityRej);
 
     void validateOrder();
 };
