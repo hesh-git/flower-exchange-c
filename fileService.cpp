@@ -72,6 +72,7 @@ vector<Order> FileService::readAndProcessOrders(const std::string &filename){
 
 void FileService::writeExecutionReportToFile(const string &fileName, const vector<Order> &orders){
     ofstream file(fileName);
+    cout << "Writing to file: " << fileName << endl;
     if (file.is_open()){
         // Write header
         file << "ClientOrderId, OrderID, Instrument, Side, Price, Quantity, ExecStatus, Reason, TransactionTime" << endl;

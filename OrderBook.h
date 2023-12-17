@@ -24,12 +24,14 @@ public:
     void processBuyOrderWithSellOrders(Order &order, ExecReport &execReport);
     void addNewBuyOrder(Order &order, ExecReport &execReport);
     void fullyFillBuyOrder(Order &order, int sellPrice, ExecReport &execReport);
-    void partiallyFillBuyOrder(Order &order, int sellPrice, ExecReport &execReport);
+    void partiallyFillBuyOrderBuySide(Order &order, int fillPrice, ExecReport &execReport);
+    void partiallyFillBuyOrderSellSide(Order &order, int fillPrice, ExecReport &execReport);
     void processSellOrder(Order &order, ExecReport &execReport);
     void processSellOrderWithBuyOrders(Order &order, ExecReport &execReport);
     void addNewSellOrder(Order &order, ExecReport &execReport);
     void fullyFillSellOrder(Order &order, int buyPrice, ExecReport &execReport);
-    void partiallyFillSellOrder(Order &order, int buyPrice, ExecReport &execReport);
+    void partiallyFillSellOrderBuySide(Order &order, int fillPrice, ExecReport &execReport);
+    void partiallyFillSellOrderSellSide(Order &order, int fillPrice, ExecReport &execReport);
     static void sortBuyOrdersDescending(std::vector<Order> &orders);
     static void sortSellOrdersAscending(std::vector<Order> &orders);
     string getTimeStamp();
